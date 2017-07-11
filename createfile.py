@@ -2,27 +2,27 @@
 
 '''
 用法：
-1 修改PROJECTPATH  SUBLIME_SNIPPET_PATH
-2 运行时把第一个参数作为模块名
-  如： Python3 creatfile.py Baqi ，
-  模块名＝ Baqi, 在PROJECTPATH目录下创建Baqi文件夹，文件夹内
-  创建文件BaqiCtrl.lua BaqiView.lua BaqiConst.lua BaqiUtil.lua BaqiDBUtil.lua BaqiRequest.lua BaqiModel.lua ，
-  读取lua_newclass_desc.sublime-snippet/lua_module_desc.sublime-snippet文件初始化上述文件
+
+python createfile.py  modulename 目标路径
+
+第二个参数目标路径可以不传。
+如果参数不传目标路径，会自动检测当前脚本上级目录下是否有Resources/script/module结构，有，则使用该目录，没有则使用配置路径PROJECTPATH
+然后在目标路径下创建名为 modulename 的文件夹和默认的几个文件 View，Ctrl，Model，Util，Request，Const，DBUtil
+上面几个文件会用sublime-snippet 文件初始化
+
 '''
 
 
 import os 
 import sys
 import shutil
-# import commands
+import commands
 # import subprocess
 from datetime import datetime
 import re
 # 文件存储路径 手动修改
-PROJECTPATH = "/Users/username/test/lua/"
+PROJECTPATH = "/Users/username/work/newSvn/CardPirate/trunk/cocos2d-x-2.2.3/projects/CardPirate/Resources/script/module/"
 
-# sublime-snippet文件路径 手动修改
-SUBLIME_SNIPPET_PATH = "/Users/username/Library/Application Support/Sublime Text 3/Packages/User/"
 
 # 要创建的文件以及对应的snippet文件
 FILE_NAME_DIC = {"View"   : "lua_newclass_desc.sublime-snippet",
@@ -39,7 +39,7 @@ modulename = ''
 
 
 def judgeNext():
-	value = input("当前文件夹已经存在了,是否删除重新创建(y/n):")
+	value = raw_input("当前文件夹已经存在了,是否删除重新创建(y/n):")
 	if value == 'y':
 		return True
 	elif value == 'n':
@@ -68,9 +68,8 @@ def getFileNameNew(filestr):
 		
 
 #获取sublime-snippet文件路径 
-def getSnippetPath(filename): 
-	return SUBLIME_SNIPPET_PATH + filename
-
+def getSnippetPath(filename):
+	return  os.path.dirname(os.path.realpath(__file__)) + os.path.sep + filename
 
 
 # Ctrl destroy接口中补充内容
@@ -125,16 +124,16 @@ end
 # sublime-snippet文件内容复制到目标文件
 def copySnippetToFile(snippetFile,targetFile):
 	if not os.path.exists(snippetFile):
-		print("文件不存在 snippetFile = {}".format(snippetFile))
+		print "文件不存在 snippetFile = %s" % format(snippetFile)
 		return
 	if not os.path.exists(targetFile):
-		print("文件不存在 targetFile = {}".format(targetFile))
+		print "文件不存在 targetFile = %s" % format(targetFile)
 		return
 	with open(snippetFile) as sf:
 		with open(targetFile, 'w') as pf:
 			for var in sf.readlines():
-				if re.match(r'.*\<.*\>',var):                             #去掉包含< ... > 的行
-					print("去掉<snippet>类的行 var=%s" % var)
+				if re.match(r'.*\<.*\>',var):                              #去掉包含< ... > 的行
+					print "去掉<snippet>类的行 var=%s" % var
 				else:
 					if var.find("${1/\.lua//g}") != -1:                    # ${1/\.lua//g} 替换成class名
 						classname = os.path.basename(targetFile)
@@ -162,7 +161,7 @@ def createCtrlFile(snippetFile,targetFile):
 	copySnippetToFile(snippetFile,targetFile)
 
 	if not os.path.exists(targetFile):
-		print("文件不存在 : {}".format(targetFile))
+		print "文件不存在 : %s" % format(targetFile)
 		return
 
 	strBuff = ''
@@ -192,7 +191,7 @@ def createCtrlFile(snippetFile,targetFile):
 def createRequestFile(snippetFile,targetFile):
 	copySnippetToFile(snippetFile, targetFile)
 	if not os.path.exists(targetFile):
-		print("文件不存在 : {}".format(targetFile))
+		print "文件不存在 : %s" % format(targetFile)
 		return
 	strBuff = ''
 	with open(targetFile, 'r') as pf:
@@ -209,47 +208,93 @@ def createRequestFile(snippetFile,targetFile):
 
 
 
+# 在当前路径的上一级目录找 "Resources/script/module/"结构，如果能找到，使用该目录
+def getCurModelPath():
+	curpath = os.path.dirname(os.getcwd())
+	writepath = curpath + os.path.sep + "Resources/script/module/"
+	return writepath
+
+
+# 判断当前输入的第二个参数是不是合法目录,是返回完成目录，不是返回空
+def judgeInputPath(pathStr):
+	if not pathStr.endswith('/'):
+		pathStr += os.path.sep
+	if not pathStr.endswith('Resources/script/module/'):
+		pathStr += 'Resources/script/module/'
+	if os.path.isdir(pathStr):
+		return pathStr
+	return None
+
+
+
 ########################################################################################################
 
 
 if __name__ == '__main__':
+
+	print "参数个数＝%s" % len(sys.argv)
+
+
+
 	# 判断有无输入参数
 	if len(sys.argv) <= 1:
-		print("输入要创建的模块名")
-		sys.exit()
+		print "输入要创建的模块名"
+		exit()
 
 	modulename = sys.argv[1]
-	print("要创建的模块名:{}".format(modulename))
-	#要创建的文件夹路径
-	targetPath = os.path.join(PROJECTPATH,modulename)
-	print("要创建的文件夹路径:{}".format(targetPath))
+	print "要创建的模块名:%s" % format(modulename)
+
+	# 目标路径
+	targetPath = None
+	# 检测输入路径是否合法
+	if len(sys.argv) >= 3:#输入参数制定了创建目录
+		print "输入路径＝%s" % sys.argv[2]
+		path = judgeInputPath(sys.argv[2])
+		if path :
+			targetPath = os.path.join(path, modulename)
+			print "使用输入目录，创建文件的目录＝%s" % path
+		else:
+			print "输入目录错误,检测当前脚本目录上级路径 : %s" % sys.argv[2]
+
+	#检测当前脚本的上级路径是否合法
+	if not targetPath and os.path.isdir(getCurModelPath()):     # 如果脚本放在工程根目录运行，取当前目录创建文件
+		targetPath = os.path.join(getCurModelPath(), modulename)
+		print "当前脚本上级路径正确,目标路径：%s" % targetPath
+
+	#使用默认的配置路径
+	if not targetPath:
+		targetPath = os.path.join(PROJECTPATH, modulename)
+		print "当前脚本上级路径错误，使用配置路径： %s" % targetPath
+
+
+	print "要创建的文件夹路径:%s" % format(targetPath)
 	#文件夹已经存在是否删除
 	if os.path.exists(targetPath):
 		rlt = judgeNext()
 		if rlt :
 			shutil.rmtree(targetPath)
 		else:
-			print("创建失败 目标文件夹已经存在")
+			print "创建失败 目标文件夹已经存在"
 			sys.exit()
 
 	# 创建文件夹
-	print("make dir ")
+	print "make dir "
 	os.mkdir(targetPath)
 
-	print("开始创建文件")
+	print "开始创建文件"
 	list_key = FILE_NAME_DIC.keys()
 	for var in list_key:
-		filepath = targetPath + "/" + getFileNameNew(var)
+		filepath = targetPath + os.path.sep + getFileNameNew(var)
 		pf = open(filepath,'w')
 		pf.close()
 
 	# 修改文件内容
 	for var in list_key:
 		filename = getFileNameNew(var)
-		filepath = targetPath + "/" + filename
+		filepath = targetPath + os.path.sep + filename
 		snippetname = FILE_NAME_DIC.get(var)
 		snippet_path = getSnippetPath(snippetname)
-		print("filename=%s" % filename)
+		print "filename=%s" % filename
 		if var == "Ctrl":
 			createCtrlFile(snippet_path,filepath)
 		elif var == "Request":
