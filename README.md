@@ -1,4 +1,4 @@
-cocos2dx-lua 项目， 开发新需求，使用sublime-text创建多个lua文件，基本需要的文件有Ctrl,Model,View,Util,DBUtil,Request等，再使用sublime-text的sinppet插件初始化lua文件，创建module 或 class 结构。
+cocos2dx-lua 项目， 开发新需求，使用sublime-text创建多个lua文件，基本需要的文件有Ctrl,Model,View,Util,DBUtil,Request等，再使用sublime-text的sinppet插件 lua_module_desc.sublime-snippet / lua_newclass_desc.sublime-snippet  初始化lua文件，创建module 或 class 结构。
 该脚本将上述内容一键创建。省去重复创建过程。
 
 
