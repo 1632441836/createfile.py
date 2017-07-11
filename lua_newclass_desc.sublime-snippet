@@ -1,0 +1,70 @@
+<snippet>
+	<content><![CDATA[
+-- FileName: ${1:$TM_FILENAME}
+-- Author: ${2:$TM_FULLNAME}
+-- Date: 2016-${3:03}-${4:00}
+-- Purpose: ${6:function description of module}
+--[[TODO List]]
+
+${1/\.lua//g} = class("${1/\.lua//g}", CCommonView)
+
+-- 模块局部变量 --
+local m_i18n	= gi18n
+local m_fnGetWidget = g_fnGetWidgetByName
+
+${1/\.lua//g}._mainLayer = nil
+
+function ${1/\.lua//g}:notifications( ... )
+	return {
+		--[_dModel.MSG.CB_GET_SHARE_REWARD]	= function () self:fnMSG_CB_GET_SHARE_REWARD() end,
+	}
+end
+
+-- 适配项
+function ${1/\.lua//g}:adaptItems( ... )
+	return {
+		-- self._mainLayer.img_main_bg,
+	}
+end
+
+-- 计时器
+function ${1/\.lua//g}:fnUpdate( ... )
+	
+end
+
+-- 重连成功
+function ${1/\.lua//g}:reconnect_OK( ... )
+	
+end
+
+-- 重连失败
+function ${1/\.lua//g}:reconnect_Failed( ... )
+	
+end
+
+function ${1/\.lua//g}:ctor()
+
+end
+
+function ${1/\.lua//g}:create( ... )
+	self._mainLayer = g_fnLoadUI("ui/activity_seven_day.json")
+
+	-- 注册onExit()
+	self:registExitAndEnterCall(function ( ... )
+    end)
+    self:createFrame()
+
+	return self._mainLayer
+end
+
+function ${1/\.lua//g}:createFrame( ... )
+	
+end
+
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<tabTrigger>newclasscom</tabTrigger>
+	<!-- Optional: Set a scope to limit where the snippet will trigger -->
+	<scope>source.lua</scope>
+</snippet>
+	
