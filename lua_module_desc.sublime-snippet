@@ -1,0 +1,34 @@
+<snippet>
+	<content><![CDATA[
+-- FileName: ${1:$TM_FILENAME}
+-- Author: ${2:TM_FULLNAME}
+-- Date: 2016-${3:10}-${5:00} 
+-- Purpose: ${6:function description of module}
+--[[TODO List]]
+
+module("${1/\.lua//g}", package.seeall)
+
+-- UI控件引用变量 --
+
+-- 模块局部变量 --
+
+
+function destroy(...)
+	package.loaded["${1/\.lua//g}"] = nil
+end
+
+function moduleName()
+    return "${1/\.lua//g}"
+end
+
+function create(...)
+
+end
+
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<tabTrigger>filecom</tabTrigger>
+	<!-- Optional: Set a scope to limit where the snippet will trigger -->
+	<scope>source.lua</scope>
+</snippet>
+	
